@@ -20,7 +20,7 @@
         </p>
         <div class="hero-actions">
             <a href="{{ url_for('register') }}" class="btn-primary">Create free account</a>
-            <a href="#features" class="btn-ghost">See how it works &rarr;</a>
+            <a href="#how-it-works" class="btn-ghost" id="howItWorksOpen">See how it works &rarr;</a>
         </div>
     </div>
     <div class="hero-visual">
@@ -99,4 +99,61 @@
     </div>
 </section>
 
+<div class="modal" id="howItWorksModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="howItWorksTitle" hidden>
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-content" role="document">
+        <button type="button" class="modal-close" data-modal-close aria-label="Close video">&times;</button>
+        <h2 id="howItWorksTitle" class="modal-title">See how Spendly works</h2>
+        <div class="modal-video">
+            <iframe
+                id="howItWorksVideo"
+                src=""
+                data-src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&amp;autoplay=1"
+                title="How Spendly works"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var modal = document.getElementById('howItWorksModal');
+    var opener = document.getElementById('howItWorksOpen');
+    var video = document.getElementById('howItWorksVideo');
+    if (!modal || !opener || !video) return;
+
+    function openModal() {
+        if (!video.src) video.src = video.dataset.src;
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        // Strip the src so the YouTube player fully stops.
+        video.src = '';
+    }
+
+    opener.addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal();
+    });
+
+    modal.querySelectorAll('[data-modal-close]').forEach(function (el) {
+        el.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) closeModal();
+    });
+})();
+</script>
 {% endblock %}
