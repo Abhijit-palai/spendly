@@ -4,6 +4,14 @@ from pathlib import Path
 from werkzeug.security import generate_password_hash
 
 
+class EmailAlreadyExistsError(Exception):
+    """Raised when create_user() tries to insert an email already in users."""
+
+    def __init__(self, email):
+        self.email = email
+        super().__init__(f"An account with the email {email!r} already exists.")
+
+
 def get_db():
     """Open a SQLite connection with row factory and foreign keys enabled."""
     db_path = Path(__file__).resolve().parent.parent / "spendly.db"
@@ -82,3 +90,35 @@ def seed_db():
         )
 
         conn.commit()
+
+
+def create_user(name, email, password):
+    """Insert a new user with a hashed password; return the new user id.
+
+    Raises:
+        ValueError: if name, email, or password is empty after stripping.
+        EmailAlreadyExistsError: if the email is already in the users table.
+    """
+    name = name.strip()
+    email = email.strip()
+    if not name or not email or not password:
+        raise ValueError("name, email, and password are required")
+
+    # Lowercase the email so "Alice@x.com" and "alice@x.com" share an
+    # account. SQLite UNIQUE is byte-comparison; without this, casing
+    # differences would let duplicates through.
+    email = email.lower()
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                (name, email, generate_password_hash(password)),
+            )
+            conn.commit()
+        except sqlite3.IntegrityError as exc:
+            # users has only one UNIQUE constraint (email), so any
+            # IntegrityError here is by definition a duplicate email.
+            raise EmailAlreadyExistsError(email) from exc
+        return cursor.lastrowid
