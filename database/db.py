@@ -122,3 +122,22 @@ def create_user(name, email, password):
             # IntegrityError here is by definition a duplicate email.
             raise EmailAlreadyExistsError(email) from exc
         return cursor.lastrowid
+
+
+def find_user_by_email(email):
+    """Return the user row matching this email, or None.
+
+    Lowercases and strips the input so callers don't need to normalise
+    before lookup. Returns None when no row exists; never raises on a
+    missing row.
+    """
+    email = email.strip().lower()
+    if not email:
+        return None
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, name, email, password_hash FROM users WHERE email = ?",
+            (email,),
+        )
+        return cursor.fetchone()
