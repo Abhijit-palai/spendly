@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Profile &mdash; Spendly{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="profile-section">
+
+    {# ---------- Section 1: User info card ---------- #}
+    <div class="profile-card profile-user">
+        <div class="profile-avatar" aria-hidden="true">
+            {{ user.initials }}
+        </div>
+        <h1 class="profile-name">{{ user.name }}</h1>
+        <p class="profile-email">{{ user.email }}</p>
+        <p class="profile-since">
+            <span class="profile-since-label">Member since</span>
+            <span class="profile-since-value">{{ user.member_since }}</span>
+        </p>
+    </div>
+
+    {# ---------- Section 2: Summary stats ---------- #}
+    <div class="profile-stats">
+        <div class="profile-stat">
+            <p class="profile-stat-label">Total spent</p>
+            <p class="profile-stat-value">&rupee;{{ stats.total_spent }}</p>
+            <p class="profile-stat-meta">across {{ stats.txn_count }} transactions</p>
+        </div>
+        <div class="profile-stat">
+            <p class="profile-stat-label">Top category</p>
+            <p class="profile-stat-value profile-stat-value--sm">{{ stats.top_category }}</p>
+            <p class="profile-stat-meta profile-stat-meta--good">
+                &rupee;{{ stats.top_category_amount }} this month
+            </p>
+        </div>
+        <div class="profile-stat">
+            <p class="profile-stat-label">Quick actions</p>
+            <p class="profile-stat-value profile-stat-value--sm">&nbsp;</p>
+            <p class="profile-stat-meta">
+                <a href="{{ url_for('add_expense') }}" class="profile-stat-link">+ Add expense</a>
+            </p>
+        </div>
+    </div>
+
+    {# ---------- Section 3: Transaction history ---------- #}
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h2 class="profile-card-title">Transaction history</h2>
+            <span class="profile-card-sub">{{ transactions|length }} entries</span>
+        </div>
+
+        <div class="profile-table-wrap">
+            <table class="profile-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Category</th>
+                        <th scope="col" class="profile-th-num">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td class="profile-td-date">{{ t.date }}</td>
+                        <td class="profile-td-desc">{{ t.description or 'Untitled' }}</td>
+                        <td>
+                            <span class="profile-badge profile-badge--{{ t.category_class }}">
+                                {{ t.category }}
+                            </span>
+                        </td>
+                        <td class="profile-td-amount">&minus;&rupee;{{ t.amount }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="profile-empty">
+                            No transactions yet.
+                            <a href="{{ url_for('add_expense') }}" class="profile-empty-link">Add your first expense &rarr;</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# ---------- Section 4: Category breakdown ---------- #}
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h2 class="profile-card-title">Category breakdown</h2>
+            <span class="profile-card-sub">all time</span>
+        </div>
+
+        {% if categories %}
+        <div class="profile-bars">
+            {% for cat in categories %}
+            <div class="profile-bar-row">
+                <div class="profile-bar-label">
+                    <span class="profile-bar-name">{{ cat.name }}</span>
+                    <span class="profile-bar-amount">&rupee;{{ cat.amount }}</span>
+                </div>
+                <div class="profile-bar-track">
+                    <div class="profile-bar-fill profile-bar-fill--{{ cat.color_class }}"
+                         style="width: {{ cat.percent }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="profile-empty profile-empty--inline">No category data yet. Add an expense to see your breakdown.</p>
+        {% endif %}
+    </div>
+
+</section>
+
+{% endblock %}
