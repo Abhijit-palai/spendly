@@ -20,10 +20,13 @@
             </a>
             <div class="nav-links">
                 {% if session.user_id %}
-                <a href="{{ url_for('logout') }}">Logout</a>
+                    <span class="nav-greeting">Hi, {{ session.name.split(' ', 1)[0] }}</span>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('profile') }}">Profile</a>
+                    <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
                 {% else %}
-                <a href="{{ url_for('login') }}">Sign in</a>
-                <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
+                    <a href="{{ url_for('login') }}">Sign in</a>
+                    <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
                 {% endif %}
             </div>
         </div>
@@ -35,13 +38,17 @@
 
     <footer class="footer">
         <div class="footer-inner">
-            <span class="brand-icon">◈</span>
-            <span class="footer-name">Spendly</span>
-            <p class="footer-copy">Track every rupee. Own your finances.</p>
-            <div class="footer-links">
-                <a href="/terms">Terms and Conditions</a>
-                <a href="/privacy">Privacy Policy</a>
+            <div class="footer-brand">
+                <span class="brand-icon">◈</span>
+                <span class="footer-name">Spendly</span>
             </div>
+            <p class="footer-copy">Track every rupee. Own your finances.</p>
+            <nav class="footer-nav" aria-label="Footer">
+                <a href="{{ url_for('terms') }}" class="footer-link">Terms &amp; Conditions</a>
+                <span class="footer-sep" aria-hidden="true">&middot;</span>
+                <a href="{{ url_for('privacy') }}" class="footer-link">Privacy Policy</a>
+            </nav>
+            <p class="footer-meta">&copy; 2026 Spendly. All rights reserved.</p>
         </div>
     </footer>
 
